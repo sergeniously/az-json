@@ -1,0 +1,20 @@
+{
+	// a name can be without quotes
+	json5 : {
+		"numbers" : [
+			+123, 0x123abc, -0xABC123, +0xAbc123,
+			.123, 123., +123.0, +.123, -.123, +123., -123.,
+			NaN, +NaN, -NaN, Infinity, +Infinity, -Infinity,
+		],
+		'strings' : [
+			string_without_quotes,
+			"string with escaped \
+				new line", 
+			"Multi
+				Line
+					String",
+		],
+	}, 
+	/* redundant comma
+	   at the end of object */
+}
