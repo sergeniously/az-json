@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "test.hpp"
-#include <json/Reader.h>
+#include "tests.hpp"
+#include "../Reader.h"
 #include <cmath>
 
 struct ReaderFixture {

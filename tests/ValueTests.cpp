@@ -1,5 +1,5 @@
-#include "test.hpp"
-#include <json/Value.h>
+#include "tests.hpp"
+#include "../Value.h"
 
 BOOST_AUTO_TEST_SUITE(ValueTests)
 

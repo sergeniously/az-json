@@ -1,27 +1,31 @@
-OUTPUT_DIR=../binaries
-APP=$(OUTPUT_DIR)/test-az-json
-LIB=$(OUTPUT_DIR)/libaz-json.a
+DESTINATION=../binaries
+APP=$(DESTINATION)/test-az-json
+LIB=$(DESTINATION)/libaz-json.a
 
 SOURCES=\
-	test_value.cpp \
-	test_reader.cpp \
-	test_writer.cpp \
-	test_path.cpp \
-	test.cpp
+	ValueTests.cpp \
+	ReaderTests.cpp \
+	WriterTests.cpp \
+	PathTests.cpp \
+	tests.cpp
 
 OBJECTS=\
-	$(patsubst %.cpp, $(OUTPUT_DIR)/%.o, $(SOURCES))
+	$(patsubst %.cpp, $(DESTINATION)/%.o, $(SOURCES))
 
 BUILD_OPTIONS=\
 	-std=c++2a -fPIC -O2 -g -Wall
 
 all: $(APP)
+	valgrind --leak-check=summary --error-exitcode=1 $(APP)
 
 $(APP): $(OBJECTS) $(LIB)
 	g++ -o $@ $(OBJECTS) $(LIB) -lboost_unit_test_framework
 
-$(OBJECTS): $(OUTPUT_DIR)/%.o: %.cpp
+$(OBJECTS): $(DESTINATION)/%.o: %.cpp
 	g++ -c $< -o $@ $(BUILD_OPTIONS)
+
+$(LIB):
+	make -C ..
 
 clean:
 	rm -v -f $(OBJECTS) $(APP)

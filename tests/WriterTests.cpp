@@ -1,5 +1,7 @@
-#include <json/Writer.h>
-#include "test.hpp"
+#define _CRT_SECURE_NO_WARNINGS
+#include "../Writer.h"
+#include "tests.hpp"
+#include <ctime>
 
 BOOST_AUTO_TEST_SUITE(WriterTests)
 

@@ -1,5 +1,5 @@
 LIBRARY=az-json
-OUTPUT_DIR=binaries
+DESTINATION=binaries
 
 SOURCES=\
 	Error.cpp \
@@ -8,21 +8,17 @@ SOURCES=\
 	Reader.cpp \
 	Writer.cpp
 
-OBJECTS=$(patsubst %.cpp, $(OUTPUT_DIR)/%.o, $(SOURCES))
+OBJECTS=$(patsubst %.cpp, $(DESTINATION)/%.o, $(SOURCES))
 
 BUILD_OPTIONS=\
 	-std=c++2a -fPIC -g -O2 -Wall
 
-STATIC_LIBRARY=$(OUTPUT_DIR)/lib$(LIBRARY).a
-SHARED_LIBRARY=$(OUTPUT_DIR)/lib$(LIBRARY).so
-TEST_UTILITY=$(OUTPUT_DIR)/test-$(LIBRARY)
+STATIC_LIBRARY=$(DESTINATION)/lib$(LIBRARY).a
+SHARED_LIBRARY=$(DESTINATION)/lib$(LIBRARY).so
 
-all: $(OUTPUT_DIR) $(STATIC_LIBRARY) $(SHARED_LIBRARY)
-	make -C tests
+all: $(DESTINATION) $(STATIC_LIBRARY) $(SHARED_LIBRARY)
 
-library: $(STATIC_LIBRARY) $(SHARED_LIBRARY)
-
-$(OUTPUT_DIR):
+$(DESTINATION):
 	mkdir -p $@
 
 $(STATIC_LIBRARY): $(OBJECTS)
@@ -31,15 +27,11 @@ $(STATIC_LIBRARY): $(OBJECTS)
 $(SHARED_LIBRARY): $(OBJECTS)
 	g++ -shared -o $@ $(OBJECTS)
 
-$(OBJECTS): $(OUTPUT_DIR)/%.o: %.h
-$(OBJECTS): $(OUTPUT_DIR)/%.o: %.cpp
+$(OBJECTS): $(DESTINATION)/%.o: %.cpp
 	g++ -c $< -o $@ $(BUILD_OPTIONS)
 
-test:
-	$(TEST_UTILITY) --no_color_output --detect_memory_leaks
-
-leak:
-	valgrind --leak-check=summary $(TEST_UTILITY)
+check: $(STATIC_LIBRARY)
+	make -C tests
 
 clean:
 	make -C tests clean

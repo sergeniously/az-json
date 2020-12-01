@@ -1,2 +1,2 @@
 #define BOOST_TEST_MAIN
-#include "test.hpp"
+#include "tests.hpp"
