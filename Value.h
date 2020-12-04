@@ -92,6 +92,9 @@ public:
 	operator float() const;
 	operator bool() const;
 
+	Value& convert(Type);
+	Value convert(Type) const;
+
 	bool operator==(const Value&) const;
 	bool operator!=(const Value&) const;
 	bool operator<(const Value&) const;

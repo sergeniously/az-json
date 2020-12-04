@@ -218,7 +218,9 @@ void Writer::escape(const char* begin, const char* end)
 				uint32_t unicode = 0;
 				length = convertUnicode(begin, end, unicode);
 				if (unicode < 0x20 || unicode >= 0x80) {
+					auto flags = stream.flags();
 					stream << "\\u" << std::setfill('0') << std::setw(4) << std::hex << unicode;
+					stream.flags(flags);
 				}
 				else {
 					stream << letter;

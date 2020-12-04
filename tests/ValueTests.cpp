@@ -15,6 +15,12 @@ BOOST_AUTO_TEST_CASE(make_null)
 	BOOST_CHECK_EQUAL(json.stringify(), "null");
 }
 
+BOOST_AUTO_TEST_CASE(make_null_by_default)
+{
+	az::json::Value json;
+	BOOST_CHECK(json.isNull());
+}
+
 BOOST_AUTO_TEST_CASE(make_null_from_nullptr)
 {
 	az::json::Value json(nullptr);
@@ -171,8 +177,185 @@ BOOST_AUTO_TEST_CASE(get_default)
 	az::json::Value json = {
 		{"yes", 123}
 	};
-	auto value = json.get("no", 321);
-	BOOST_REQUIRE_EQUAL(value.asInteger(), 321);
+	BOOST_CHECK_EQUAL(json.get("yes", 321).asInteger(), 123);
+	BOOST_CHECK_EQUAL(json.get("no", 321).asInteger(), 321);
+}
+
+BOOST_AUTO_TEST_CASE(is_equal)
+{
+	BOOST_CHECK_EQUAL(az::json::Value(), az::json::Value(nullptr));
+	BOOST_CHECK_EQUAL(az::json::Value(true), az::json::Value(true));
+	BOOST_CHECK_EQUAL(az::json::Value(false), az::json::Value(false));
+	BOOST_CHECK_EQUAL(az::json::Value(123), az::json::Value(123));
+	BOOST_CHECK_EQUAL(az::json::Value(-456), az::json::Value(-456));
+	BOOST_CHECK_EQUAL(az::json::Value(3.14), az::json::Value(3.14));
+	BOOST_CHECK_EQUAL(az::json::Value(-2.78), az::json::Value(-2.78));
+	BOOST_CHECK_EQUAL(az::json::Value("az"), az::json::Value("az"));
+	BOOST_CHECK_EQUAL(az::json::Value({1, 2.0, "three"}), az::json::Value({1, 2.0, "three"}));
+	BOOST_CHECK_EQUAL(az::json::Value({{"one", 1}}), az::json::Value({{"one", 1}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_null_not_equal)
+{
+	BOOST_CHECK_NE(az::json::Value(), az::json::Value(true));
+	BOOST_CHECK_NE(az::json::Value(), az::json::Value(false));
+	BOOST_CHECK_NE(az::json::Value(), az::json::Value(0));
+	BOOST_CHECK_NE(az::json::Value(), az::json::Value(-123));
+	BOOST_CHECK_NE(az::json::Value(), az::json::Value(3.14));
+	BOOST_CHECK_NE(az::json::Value(), az::json::Value(-3.14));
+	BOOST_CHECK_NE(az::json::Value(), az::json::Value("az"));
+	BOOST_CHECK_NE(az::json::Value(), az::json::Value({1, 2}));
+	BOOST_CHECK_NE(az::json::Value(), az::json::Value({{"one", 1}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_bool_not_equal)
+{
+	BOOST_CHECK_NE(az::json::Value(true), az::json::Value());
+	BOOST_CHECK_NE(az::json::Value(true), az::json::Value(false));
+	BOOST_CHECK_NE(az::json::Value(true), az::json::Value(1));
+	BOOST_CHECK_NE(az::json::Value(true), az::json::Value(1.0));
+	BOOST_CHECK_NE(az::json::Value(true), az::json::Value("1"));
+	BOOST_CHECK_NE(az::json::Value(true), az::json::Value({1, 2}));
+	BOOST_CHECK_NE(az::json::Value(true), az::json::Value({{"one", 1}}));
+
+	BOOST_CHECK_NE(az::json::Value(false), az::json::Value());
+	BOOST_CHECK_NE(az::json::Value(false), az::json::Value(true));
+	BOOST_CHECK_NE(az::json::Value(false), az::json::Value(0));
+	BOOST_CHECK_NE(az::json::Value(false), az::json::Value(0.0));
+	BOOST_CHECK_NE(az::json::Value(false), az::json::Value("0"));
+	BOOST_CHECK_NE(az::json::Value(false), az::json::Value({0, 0}));
+	BOOST_CHECK_NE(az::json::Value(false), az::json::Value({{"zero", 0}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_integer_not_equal)
+{
+	BOOST_CHECK_NE(az::json::Value(123), az::json::Value());
+	BOOST_CHECK_NE(az::json::Value(123), az::json::Value(true));
+	BOOST_CHECK_NE(az::json::Value(123), az::json::Value(false));
+	BOOST_CHECK_NE(az::json::Value(123), az::json::Value(0));
+	BOOST_CHECK_NE(az::json::Value(123), az::json::Value(-123));
+	BOOST_CHECK_NE(az::json::Value(123), az::json::Value(123.0));
+	BOOST_CHECK_NE(az::json::Value(123), az::json::Value("123"));
+	BOOST_CHECK_NE(az::json::Value(123), az::json::Value({1, 2, 3}));
+	BOOST_CHECK_NE(az::json::Value(123), az::json::Value({{"id", 123}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_real_not_equal)
+{
+	BOOST_CHECK_NE(az::json::Value(12.3), az::json::Value());
+	BOOST_CHECK_NE(az::json::Value(12.3), az::json::Value(true));
+	BOOST_CHECK_NE(az::json::Value(12.3), az::json::Value(false));
+	BOOST_CHECK_NE(az::json::Value(12.3), az::json::Value(12));
+	BOOST_CHECK_NE(az::json::Value(12.3), az::json::Value(-12.3));
+	BOOST_CHECK_NE(az::json::Value(12.3), az::json::Value(12.2999));
+	BOOST_CHECK_NE(az::json::Value(12.3), az::json::Value("12.3"));
+	BOOST_CHECK_NE(az::json::Value(12.3), az::json::Value({1, 2, 3}));
+	BOOST_CHECK_NE(az::json::Value(12.3), az::json::Value({{"id", 123}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_string_not_equal)
+{
+	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value());
+	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value(true));
+	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value(false));
+	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value(0));
+	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value(-1));
+	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value(1.0));
+	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value(-1.0));
+	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value({"json", "json"})); // TODO: check single element of init list
+	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value({{"json", 5}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_array_not_equal)
+{
+	az::json::Value json = {1, 2};
+	BOOST_REQUIRE(json.isArray());
+	BOOST_CHECK_NE(json, az::json::Value());
+	BOOST_CHECK_NE(json, az::json::Value(true));
+	BOOST_CHECK_NE(json, az::json::Value(false));
+	BOOST_CHECK_NE(json, az::json::Value(12345));
+	BOOST_CHECK_NE(json, az::json::Value(12.34));
+	BOOST_CHECK_NE(json, az::json::Value({1, 2, 3}));
+	BOOST_CHECK_NE(json, az::json::Value({{"json", 5}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_object_not_equal)
+{
+	az::json::Value json = {
+		{"json", 5}
+	};
+	BOOST_REQUIRE(json.isObject());
+	BOOST_CHECK_NE(json, az::json::Value());
+	BOOST_CHECK_NE(json, az::json::Value(true));
+	BOOST_CHECK_NE(json, az::json::Value(false));
+	BOOST_CHECK_NE(json, az::json::Value(12345));
+	BOOST_CHECK_NE(json, az::json::Value(12.34));
+	BOOST_CHECK_NE(json, az::json::Value({1, 2, 3}));
+	BOOST_CHECK_NE(json, az::json::Value({{"json", 0}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_greater_than)
+{
+	BOOST_CHECK_GT(az::json::Value(true), az::json::Value(false));
+	BOOST_CHECK_GT(az::json::Value(123), az::json::Value(122));
+	BOOST_CHECK_GT(az::json::Value(3.14), az::json::Value(3.0));
+	BOOST_CHECK_GT(az::json::Value("abc"), az::json::Value("abb"));
+	BOOST_CHECK_GT(az::json::Value({1, 2, 3}), az::json::Value({1, 2}));
+	BOOST_CHECK_GT(az::json::Value({1, 2, 3}), az::json::Value({1, 2, 2}));
+	BOOST_CHECK_GT(az::json::Value({{"id", 124}}), az::json::Value({{"id", 123}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_greater_or_equal)
+{
+	BOOST_CHECK_GE(az::json::Value(true), az::json::Value(false));
+	BOOST_CHECK_GE(az::json::Value(false), az::json::Value(false));
+
+	BOOST_CHECK_GE(az::json::Value(200), az::json::Value(200));
+	BOOST_CHECK_GE(az::json::Value(200), az::json::Value(199));
+
+	BOOST_CHECK_GE(az::json::Value(3.14), az::json::Value(3.13));
+	BOOST_CHECK_GE(az::json::Value(3.14), az::json::Value(3.14));
+
+	BOOST_CHECK_GE(az::json::Value("bbb"), az::json::Value("aaa"));
+	BOOST_CHECK_GE(az::json::Value("bbb"), az::json::Value("bbb"));
+
+	BOOST_CHECK_GE(az::json::Value({1, 2, 3}), az::json::Value({1, 2}));
+	BOOST_CHECK_GE(az::json::Value({1, 2, 3}), az::json::Value({1, 2, 3}));
+
+	BOOST_CHECK_GE(az::json::Value({{"id", 124}}), az::json::Value({{"id", 123}}));
+	BOOST_CHECK_GE(az::json::Value({{"id", 124}}), az::json::Value({{"id", 124}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_less_than)
+{
+	BOOST_CHECK_LT(az::json::Value(false), az::json::Value(true));
+	BOOST_CHECK_LT(az::json::Value(122), az::json::Value(123));
+	BOOST_CHECK_LT(az::json::Value(3.1), az::json::Value(3.2));
+	BOOST_CHECK_LT(az::json::Value("aa"), az::json::Value("ab"));
+	BOOST_CHECK_LT(az::json::Value({1, 2}), az::json::Value({1, 2, 3}));
+	BOOST_CHECK_LT(az::json::Value({1, 2, 3}), az::json::Value({1, 2, 4}));
+	BOOST_CHECK_LT(az::json::Value({{"id", 123}}), az::json::Value({{"id", 124}}));
+}
+
+BOOST_AUTO_TEST_CASE(is_less_or_equal)
+{
+	BOOST_CHECK_LE(az::json::Value(false), az::json::Value(true));
+	BOOST_CHECK_LE(az::json::Value(false), az::json::Value(false));
+
+	BOOST_CHECK_LE(az::json::Value(122), az::json::Value(123));
+	BOOST_CHECK_LE(az::json::Value(123), az::json::Value(123));
+
+	BOOST_CHECK_LE(az::json::Value(3.1), az::json::Value(3.2));
+	BOOST_CHECK_LE(az::json::Value(3.2), az::json::Value(3.2));
+
+	BOOST_CHECK_LE(az::json::Value("aa"), az::json::Value("ab"));
+	BOOST_CHECK_LE(az::json::Value("ab"), az::json::Value("ab"));
+
+	BOOST_CHECK_LE(az::json::Value({1, 2}), az::json::Value({1, 2, 3}));
+	BOOST_CHECK_LE(az::json::Value({1, 2, 4}), az::json::Value({1, 2, 4}));
+
+	BOOST_CHECK_LE(az::json::Value({{"id", 123}}), az::json::Value({{"id", 124}}));
+	BOOST_CHECK_LE(az::json::Value({{"id", 124}}), az::json::Value({{"id", 124}}));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
