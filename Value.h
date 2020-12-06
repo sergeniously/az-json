@@ -4,6 +4,7 @@
 #include <string>
 #include <initializer_list>
 #include <ostream>
+#include <iterator>
 
 namespace az::json
 {
@@ -43,7 +44,7 @@ public:
 	Value(const std::wstring&);
 	Value(const Array&);
 	Value(const Object&);
-	Value(std::initializer_list<Value>&&);
+	Value(std::initializer_list<Value>);
 	Value(const Value&);
 	Value(Value&&) noexcept;
 
@@ -77,7 +78,6 @@ public:
 	bool isNegative() const;
 
 	std::wstring asWideString() const;
-	std::string asEscapedString() const;
 	std::string asString() const;
 	int64_t asInteger() const;
 	double asReal() const;
@@ -133,6 +133,71 @@ public:
 
 	const Array& getArray() const;
 	const Object& getObject() const;
+
+	class Iterator : public std::iterator<std::random_access_iterator_tag,const Value> {
+		Value::Type type = Value::Type::Null;
+		Value::Array::const_iterator arr_iter;
+		Value::Object::const_iterator obj_iter;
+	public:
+		Iterator() = default;
+		Iterator(const Iterator&) = default;
+		Iterator(Value::Array::const_iterator iter) {
+			type = Value::Type::Array;
+			arr_iter = iter;
+		}
+		Iterator(Value::Object::const_iterator iter) {
+			type = Value::Type::Object;
+			obj_iter = iter;
+		}
+		bool isArray() const {
+			return type == Value::Type::Array;
+		}
+		bool isObject() const {
+			return type == Value::Type::Object;
+		}
+		Iterator::reference value() const {
+			if (isArray()) {
+				return *arr_iter;
+			}
+			if (isObject()) {
+				return obj_iter->second;
+			}
+			return Value::null;
+		}
+		std::string key() const {
+			if (isObject()) {
+				return obj_iter->first;
+			}
+			return {};
+		}
+		Iterator& operator++() {
+			if (isArray()) {
+				arr_iter++;
+			} else if (isObject()) {
+				obj_iter++;
+			}
+			return *this;
+		}
+		Iterator operator++(int) {
+			Iterator iter = *this;
+			++(*this);
+			return iter;
+		}
+		bool operator==(const Iterator& other) const {
+			return type == other.type &&
+				arr_iter == other.arr_iter &&
+				obj_iter == other.obj_iter;
+		}
+		bool operator!=(const Iterator& other) const {
+			return !(*this == other);
+		}
+		Iterator::reference operator*() const {
+			return value();
+		}
+	};
+
+	Iterator begin() const;
+	Iterator end() const;
 
 private:
 	Type type = Type::Null;

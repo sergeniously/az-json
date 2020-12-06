@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
+#include <cstring>
 #include <limits>
 #include <algorithm>
 #include "Writer.h"
@@ -94,7 +95,7 @@ Value::Value(const Object& obj)
 	*any.object_ = obj;
 }
 
-Value::Value(std::initializer_list<Value>&& list)
+Value::Value(std::initializer_list<Value> list)
 {
 	bool is_object = std::all_of(list.begin(), list.end(), [](const Value& value) {
 		return value.isArray() && value.size() == 2 && value[0].isString();
@@ -107,7 +108,7 @@ Value::Value(std::initializer_list<Value>&& list)
 		);
 	} else {
 		reset(Type::Object);
-		for (auto&& pair : list) {
+		for (auto& pair : list) {
 			any.object_->emplace(std::move(*pair[0].any.string_), std::move(pair[1]));
 		}
 	}
@@ -268,16 +269,6 @@ std::string Value::asString() const
 	}
 }
 
-std::string Value::asEscapedString() const
-{
-	if (isString()) {
-		std::stringstream stream;
-		Writer(stream).escape(asString());
-		return stream.str();
-	}
-	return asString();
-}
-
 int64_t Value::asInteger() const
 {
 	switch (type) {
@@ -288,7 +279,7 @@ int64_t Value::asInteger() const
 		case Type::Real:
 			return int64_t(any.real_);
 		case Type::String:
-			return std::stoll(*any.string_);
+			return std::strtoll(any.string_->c_str(), nullptr, 10);
 		default:
 			// throw Error();
 			return 0;
@@ -305,7 +296,7 @@ double Value::asReal() const
 		case Type::Real:
 			return any.real_;
 		case Type::String:
-			return std::stod(*any.string_);
+			return std::strtod(any.string_->c_str(), nullptr);
 		default:
 			// throw Error();
 			return 0;
@@ -318,17 +309,19 @@ bool Value::asBool() const
 		case Type::Bool:
 			return any.bool_;
 		case Type::Integer:
-			return any.integer_ == 0;
+			return any.integer_ != 0;
 		case Type::Real:
-			return any.real_ == 0;
+			return std::isnan(any.real_) || any.real_ == 0 ?
+				false : true;
 		case Type::String:
-			if (*any.string_ == "true") {
-				return true;
+			if (!any.string_->empty()) {
+				auto compare = [](char left, char right) {
+					return std::tolower(left) == right;
+				};
+				return std::equal(any.string_->begin(), any.string_->end(), std::begin("false"), compare) ?
+					false : true;
 			}
-			if (*any.string_ == "false") {
-				return false;
-			}
-			return !any.string_->empty(); // throw Error();
+			return false;
 		default:
 			// throw Error();
 			return false;
@@ -626,6 +619,86 @@ const Value::Object& Value::getObject() const
 		return *any.object_;
 	}
 	throw Error("value is not an object");
+}
+
+Value::Iterator Value::begin() const
+{
+	if (isArray()) {
+		return Iterator(any.array_->begin());
+	}
+	if (isObject()) {
+		return Iterator(any.object_->begin());
+	}
+	if (isNull()) {
+		return Iterator();
+	}
+	throw std::runtime_error("bad type");
+}
+
+Value::Iterator Value::end() const
+{
+	if (isArray()) {
+		return Iterator(any.array_->end());
+	}
+	if (isObject()) {
+		return Iterator(any.object_->end());
+	}
+	if (isNull()) {
+		return Iterator();
+	}
+	throw std::runtime_error("bad type");
+}
+
+Value& Value::convert(Type type)
+{
+	if (this->type != type) {
+		switch (type) {
+			case Type::Bool:
+				*this = asBool();
+				break;
+			case Type::Integer:
+				*this = asInteger();
+				break;
+			case Type::Real:
+				*this = asReal();
+				break;
+			case Type::String:
+				*this = asString();
+				break;
+			case Type::Array: {
+				Value old_value;
+				swap(old_value);
+				if (old_value.type == Type::Object) {
+					for (auto& kv : *old_value.any.object_) {
+						this->append(std::move(kv.second));
+					}
+				} else {
+					this->append(std::move(old_value));
+				}
+				break;
+			}
+			case Type::Object: {
+				Value old_value;
+				swap(old_value);
+				if (old_value.type == Type::Array) {
+					for (Index id = 0; id < old_value.size(); id++) {
+						(*this)["id" + std::to_string(id)].swap(old_value[id]);
+					}
+				} else {
+					(*this)[getTypeString(old_value.type)].swap(old_value);
+				}
+				break;
+			}
+			default:
+				reset();
+		}
+	}
+	return *this;
+}
+
+Value Value::convert(Type type) const
+{
+	return Value(*this).convert(type);
 }
 
 }

@@ -73,7 +73,15 @@ BOOST_AUTO_TEST_CASE(make_array_from_initlist)
 	BOOST_CHECK_EQUAL(json[3].asString(), "json");
 }
 
-BOOST_AUTO_TEST_CASE(make_array_from_range)
+BOOST_AUTO_TEST_CASE(make_array_with_one_element_from_initlist)
+{
+	az::json::Value json({"json"});
+	BOOST_REQUIRE(json.isArray());
+	BOOST_REQUIRE_EQUAL(json.size(), 1);
+	BOOST_CHECK_EQUAL(json[0].asString(), "json");
+}
+
+BOOST_AUTO_TEST_CASE(make_array_from_json_range)
 {
 	std::list<az::json::Value> range = {
 		true, 123, -2.78, "json"
@@ -85,6 +93,17 @@ BOOST_AUTO_TEST_CASE(make_array_from_range)
 	BOOST_CHECK_EQUAL(json[1].asInteger(), 123);
 	BOOST_CHECK_EQUAL(json[2].asReal(), -2.78);
 	BOOST_CHECK_EQUAL(json[3].asString(), "json");
+}
+
+BOOST_AUTO_TEST_CASE(make_array_from_std_container)
+{
+	std::list<int> list = {1, 22, 333};
+	az::json::Value json(list.begin(), list.end());
+	BOOST_REQUIRE(json.isArray());
+	BOOST_REQUIRE_EQUAL(json.size(), 3);
+	BOOST_CHECK_EQUAL(json[0].asInteger(), 1);
+	BOOST_CHECK_EQUAL(json[1].asInteger(), 22);
+	BOOST_CHECK_EQUAL(json[2].asInteger(), 333);
 }
 
 BOOST_AUTO_TEST_CASE(make_array_automatically)
@@ -262,7 +281,7 @@ BOOST_AUTO_TEST_CASE(is_string_not_equal)
 	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value(-1));
 	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value(1.0));
 	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value(-1.0));
-	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value({"json", "json"})); // TODO: check single element of init list
+	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value({"json", "json"}));
 	BOOST_CHECK_NE(az::json::Value("json"), az::json::Value({{"json", 5}}));
 }
 
@@ -356,6 +375,162 @@ BOOST_AUTO_TEST_CASE(is_less_or_equal)
 
 	BOOST_CHECK_LE(az::json::Value({{"id", 123}}), az::json::Value({{"id", 124}}));
 	BOOST_CHECK_LE(az::json::Value({{"id", 124}}), az::json::Value({{"id", 124}}));
+}
+
+BOOST_AUTO_TEST_CASE(convert_to_bool)
+{
+	std::list<az::json::Value> given_values = {
+		nullptr, -17, 0, 2020, -3.14, 0.0, 2.78, "true", "false", "True", "False", "any", ""
+	};
+	for (auto& value : given_values) {
+		value.convert(az::json::Value::Type::Bool);
+	}
+	std::list<az::json::Value> expected_values = {
+		false, true, false, true, true, false, true, true, false, true, false, true, false
+	};
+	BOOST_CHECK_EQUAL_COLLECTIONS(given_values.begin(), given_values.end(), expected_values.begin(), expected_values.end());
+}
+
+BOOST_AUTO_TEST_CASE(convert_to_integer)
+{
+	std::list<az::json::Value> given_values = {
+		nullptr, true, false, -3.14, 0.0, 2.78, "-123", "0", "32", "3D", "any"
+	};
+	for (auto& value : given_values) {
+		value.convert(az::json::Value::Type::Integer);
+	}
+	std::list<az::json::Value> expected_values = {
+		0, 1, 0, -3, 0, 2, -123, 0, 32, 3, 0
+	};
+	BOOST_CHECK_EQUAL_COLLECTIONS(given_values.begin(), given_values.end(), expected_values.begin(), expected_values.end());
+}
+
+BOOST_AUTO_TEST_CASE(convert_to_real)
+{
+	std::list<az::json::Value> given_values = {
+		nullptr, true, false, -2020, 0, 2020, "-3.14", "0.0", "2.78", "2.4 GHz", "-9C", "lOSO"
+	};
+	for (auto& value : given_values) {
+		value.convert(az::json::Value::Type::Real);
+	}
+	std::list<az::json::Value> expected_values = {
+		0.0, 1.0, 0.0, -2020.0, 0.0, 2020.0, -3.14, 0.0, 2.78, 2.4, -9.0, 0.0
+	};
+	BOOST_CHECK_EQUAL_COLLECTIONS(given_values.begin(), given_values.end(), expected_values.begin(), expected_values.end());
+}
+
+BOOST_AUTO_TEST_CASE(convert_to_string)
+{
+	std::list<az::json::Value> given_values = {
+		nullptr, true, false, -2020, 0, 2020, -3.14, 0.0, 2.78
+	};
+	for (auto& value : given_values) {
+		value.convert(az::json::Value::Type::String);
+	}
+	std::list<az::json::Value> expected_values = {
+		"null", "true", "false", "-2020", "0", "2020", "-3.14", "0", "2.78"
+	};
+	BOOST_CHECK_EQUAL_COLLECTIONS(given_values.begin(), given_values.end(), expected_values.begin(), expected_values.end());
+}
+
+BOOST_AUTO_TEST_CASE(convert_object_to_array)
+{
+	az::json::Value json = {
+		{"bool", true},
+		{"integer", 123},
+		{"real", 3.14},
+		{"string", "pizza"}
+	};
+	json.convert(az::json::Value::Type::Array);
+	BOOST_REQUIRE(json.isArray());
+	BOOST_REQUIRE_EQUAL(json.size(), 4);
+	BOOST_CHECK_EQUAL(json[0], az::json::Value(true));
+	BOOST_CHECK_EQUAL(json[1], az::json::Value(123));
+	BOOST_CHECK_EQUAL(json[2], az::json::Value(3.14));
+	BOOST_CHECK_EQUAL(json[3], az::json::Value("pizza"));
+}
+
+BOOST_AUTO_TEST_CASE(convert_not_object_to_array)
+{
+	az::json::Value json("wow");
+	json.convert(az::json::Value::Type::Array);
+	BOOST_REQUIRE(json.isArray());
+	BOOST_REQUIRE_EQUAL(json.size(), 1);
+	BOOST_REQUIRE(json.has(0));
+	BOOST_CHECK_EQUAL(json[0], az::json::Value("wow"));
+}
+
+BOOST_AUTO_TEST_CASE(convert_array_to_object)
+{
+	az::json::Value json = {
+		nullptr, true, 123, 3.14
+	};
+	json.convert(az::json::Value::Type::Object);
+	BOOST_REQUIRE(json.isObject());
+	BOOST_REQUIRE_EQUAL(json.size(), 4);
+	BOOST_CHECK_EQUAL(json["id0"], az::json::Value(nullptr));
+	BOOST_CHECK_EQUAL(json["id1"], az::json::Value(true));
+	BOOST_CHECK_EQUAL(json["id2"], az::json::Value(123));
+	BOOST_CHECK_EQUAL(json["id3"], az::json::Value(3.14));
+}
+
+BOOST_AUTO_TEST_CASE(convert_not_array_to_object)
+{
+	az::json::Value json(123);
+	json.convert(az::json::Value::Type::Object);
+
+	BOOST_REQUIRE(json.isObject());
+	BOOST_REQUIRE_EQUAL(json.size(), 1);
+	BOOST_REQUIRE(json.has("integer"));
+	BOOST_CHECK_EQUAL(json["integer"], az::json::Value(123));
+}
+
+BOOST_AUTO_TEST_CASE(iterate_array)
+{
+	az::json::Value given = {
+		nullptr, true, 123, 3.14, "json"
+	};
+	std::list<az::json::Value> expected = {
+		nullptr, true, 123, 3.14, "json"
+	};
+	BOOST_CHECK_EQUAL_COLLECTIONS(given.begin(), given.end(), expected.begin(), expected.end());
+}
+
+BOOST_AUTO_TEST_CASE(iterate_object)
+{
+	az::json::Value json = {
+		{"bool", false},
+		{"integer", 123},
+		{"null", nullptr},
+		{"real", 2.78},
+		{"string", "coffee"}
+	};
+
+	std::list<std::string> keys;
+	std::list<az::json::Value> values;
+	for (auto it = json.begin(); it != json.end(); it++) {
+		keys.push_back(it.key());
+		values.push_back(it.value());
+	}
+
+	std::list<std::string> expected_keys = {
+		"bool", "integer", "null", "real", "string"
+	};
+	std::list<az::json::Value> expected_values = {
+		false, 123, nullptr, 2.78, "coffee"
+	};
+	BOOST_CHECK_EQUAL_COLLECTIONS(keys.begin(), keys.end(), expected_keys.begin(), expected_keys.end());
+	BOOST_CHECK_EQUAL_COLLECTIONS(values.begin(), values.end(), expected_values.begin(), expected_values.end());
+}
+
+BOOST_AUTO_TEST_CASE(iterate_null)
+{
+	az::json::Value json;
+	uint32_t counter = 0;
+	for (auto it = json.begin(); it != json.end(); it++) {
+		counter++;
+	}
+	BOOST_CHECK_EQUAL(counter, 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
