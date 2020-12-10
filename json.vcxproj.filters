@@ -5,27 +5,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Value.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Reader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Path.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Error.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Writer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Value.cpp">
@@ -43,5 +22,22 @@
     <ClCompile Include="Writer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Error.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Path.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Reader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Value.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Writer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

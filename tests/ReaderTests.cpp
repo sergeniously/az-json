@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+#define BOOST_TEST_MAIN
 #include "tests.hpp"
 #include "../Reader.h"
 #include <cmath>

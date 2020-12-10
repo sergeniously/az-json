@@ -27,11 +27,20 @@ BOOST_AUTO_TEST_CASE(make_null_from_nullptr)
 	BOOST_CHECK(json.isNull());
 }
 
-BOOST_AUTO_TEST_CASE(make_bool)
+BOOST_AUTO_TEST_CASE(make_bool_true)
 {
 	az::json::Value json(true);
 	BOOST_CHECK(json.isBool());
-	BOOST_CHECK(json.asBool());
+	BOOST_CHECK_EQUAL(json.asBool(), true);
+	BOOST_CHECK(!json.empty());
+}
+
+BOOST_AUTO_TEST_CASE(make_bool_false)
+{
+	bool value = false;
+	az::json::Value json(value);
+	BOOST_CHECK(json.isBool());
+	BOOST_CHECK_EQUAL(json.asBool(), false);
 	BOOST_CHECK(!json.empty());
 }
 
@@ -51,13 +60,22 @@ BOOST_AUTO_TEST_CASE(make_real)
 	BOOST_CHECK(!json.empty());
 }
 
-BOOST_AUTO_TEST_CASE(make_string)
+BOOST_AUTO_TEST_CASE(make_string_from_c_string)
 {
 	az::json::Value json("json");
 	BOOST_CHECK(json.isString());
 	BOOST_CHECK_EQUAL(json.asString(), "json");
 	BOOST_CHECK(!json.empty());
 	BOOST_CHECK_EQUAL(json.size(), 4);
+}
+
+BOOST_AUTO_TEST_CASE(make_string_from_std_string)
+{
+	az::json::Value json(std::string("std"));
+	BOOST_CHECK(json.isString());
+	BOOST_CHECK_EQUAL(json.asString(), "std");
+	BOOST_CHECK(!json.empty());
+	BOOST_CHECK_EQUAL(json.size(), 3);
 }
 
 BOOST_AUTO_TEST_CASE(make_array_from_initlist)
@@ -73,10 +91,10 @@ BOOST_AUTO_TEST_CASE(make_array_from_initlist)
 	BOOST_CHECK_EQUAL(json[3].asString(), "json");
 }
 
-BOOST_AUTO_TEST_CASE(make_array_with_one_element_from_initlist)
+BOOST_AUTO_TEST_CASE(make_array_from_one_element_initlist)
 {
 	az::json::Value json({"json"});
-	BOOST_REQUIRE(json.isArray());
+	BOOST_REQUIRE_EQUAL(json.getType(), az::json::Value::Type::Array);
 	BOOST_REQUIRE_EQUAL(json.size(), 1);
 	BOOST_CHECK_EQUAL(json[0].asString(), "json");
 }
@@ -115,7 +133,7 @@ BOOST_AUTO_TEST_CASE(make_array_automatically)
 	BOOST_CHECK(json.has(3));
 }
 
-BOOST_AUTO_TEST_CASE(append_to_array)
+BOOST_AUTO_TEST_CASE(append_one_to_array)
 {
 	az::json::Value json = {1};
 	BOOST_REQUIRE_EQUAL(json.size(), 1);
@@ -124,12 +142,40 @@ BOOST_AUTO_TEST_CASE(append_to_array)
 	BOOST_CHECK_EQUAL(json[1].asString(), "two");
 }
 
-BOOST_AUTO_TEST_CASE(append_to_not_array)
+BOOST_AUTO_TEST_CASE(append_one_to_not_array)
 {
 	az::json::Value json = 123;
 	json.append(321);
 	BOOST_REQUIRE_EQUAL(json.size(), 1);
 	BOOST_CHECK_EQUAL(json[0].asInteger(), 321);
+}
+
+BOOST_AUTO_TEST_CASE(append_several_to_array)
+{
+	az::json::Value json = {nullptr};
+	json.append({1, 2.0, "3"});
+	BOOST_REQUIRE_EQUAL(json.getType(), az::json::Value::Type::Array);
+	BOOST_REQUIRE_EQUAL(json.size(), 4);
+	BOOST_CHECK_EQUAL(json[0], az::json::Value(nullptr));
+	BOOST_CHECK_EQUAL(json[3], az::json::Value("3"));
+}
+
+BOOST_AUTO_TEST_CASE(append_several_to_not_array)
+{
+	az::json::Value json = true;
+	json.append({1, 2.0, "3"});
+	BOOST_REQUIRE_EQUAL(json.getType(), az::json::Value::Type::Array);
+	BOOST_REQUIRE_EQUAL(json.size(), 3);
+	BOOST_CHECK_EQUAL(json[0], az::json::Value(1));
+	BOOST_CHECK_EQUAL(json[2], az::json::Value("3"));
+}
+
+BOOST_AUTO_TEST_CASE(make_object_from_empty_initlist)
+{
+	az::json::Value json({});
+	BOOST_REQUIRE_EQUAL(json.getType(), az::json::Value::Type::Object);
+	BOOST_CHECK_EQUAL(json.size(), 0);
+	BOOST_CHECK(json.empty());
 }
 
 BOOST_AUTO_TEST_CASE(make_object_from_initlist)
@@ -191,13 +237,22 @@ BOOST_AUTO_TEST_CASE(swap_values)
 	BOOST_CHECK_EQUAL(second.asInteger(), 123);
 }
 
-BOOST_AUTO_TEST_CASE(get_default)
+BOOST_AUTO_TEST_CASE(get_default_by_key)
 {
 	az::json::Value json = {
 		{"yes", 123}
 	};
 	BOOST_CHECK_EQUAL(json.get("yes", 321).asInteger(), 123);
 	BOOST_CHECK_EQUAL(json.get("no", 321).asInteger(), 321);
+}
+
+BOOST_AUTO_TEST_CASE(get_default_by_index)
+{
+	az::json::Value json = {
+		0, 1.0, "two"
+	};
+	BOOST_CHECK_EQUAL(json.get(1, 3.0).asReal(), 1.0);
+	BOOST_CHECK_EQUAL(json.get(3, 3.0).asReal(), 3.0);
 }
 
 BOOST_AUTO_TEST_CASE(is_equal)

@@ -90,10 +90,10 @@ void Writer::writeValue(const Value& value, int level)
 			stream << '[';
 			if (!value.empty()) {
 				auto count = value.size();
-				for (const auto& arr_value : value.getArray()) {
+				for (const auto& array_value : value.getArray()) {
 					writeNewLine();
 					writeIndentation(level + 1);
-					writeValue(arr_value, level + 1);
+					writeValue(array_value, level + 1);
 					if (--count > 0) {
 						stream << ',';
 					}
@@ -107,11 +107,11 @@ void Writer::writeValue(const Value& value, int level)
 			stream << '{';
 			if (!value.empty()) {
 				auto count = value.size();
-				for (const auto& item : value.getObject()) {
+				for (const auto& [identifier, object_value] : value.getObject()) {
 					writeNewLine();
 					writeIndentation(level + 1);
-					writeIdentifier(item.first);
-					writeValue(item.second, level + 1);
+					writeIdentifier(identifier);
+					writeValue(object_value, level + 1);
 					if (--count > 0) {
 						stream << ',';
 					}

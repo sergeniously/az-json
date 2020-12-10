@@ -135,7 +135,6 @@
     <ClInclude Include="tests.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tests.cpp" />
     <ClCompile Include="PathTests.cpp" />
     <ClCompile Include="ReaderTests.cpp" />
     <ClCompile Include="ValueTests.cpp" />

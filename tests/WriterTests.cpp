@@ -1,199 +1,180 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "../Writer.h"
 #include "tests.hpp"
+#include <cmath>
+
+struct WriterFixture {
+	std::stringstream stream;
+	az::json::Writer writer;
+
+	WriterFixture() : writer(stream) {}
+};
 
 BOOST_AUTO_TEST_SUITE(WriterTests)
 
-BOOST_AUTO_TEST_CASE(write_null)
+BOOST_FIXTURE_TEST_CASE(write_null, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(nullptr));
+	writer.write(az::json::Value(nullptr));
 	BOOST_CHECK_EQUAL(stream.str(), "null");
 }
 
-BOOST_AUTO_TEST_CASE(write_bool_true)
+BOOST_FIXTURE_TEST_CASE(write_bool_true, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(true));
+	writer.write(az::json::Value(true));
 	BOOST_CHECK_EQUAL(stream.str(), "true");
 }
 
-BOOST_AUTO_TEST_CASE(write_bool_false)
+BOOST_FIXTURE_TEST_CASE(write_bool_false, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(false));
+	writer.write(az::json::Value(false));
 	BOOST_CHECK_EQUAL(stream.str(), "false");
 }
 
-BOOST_AUTO_TEST_CASE(write_positive_integer)
+BOOST_FIXTURE_TEST_CASE(write_positive_integer, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(123));
+	writer.write(az::json::Value(123));
 	BOOST_CHECK_EQUAL(stream.str(), "123");
 }
 
-BOOST_AUTO_TEST_CASE(write_negative_integer)
+BOOST_FIXTURE_TEST_CASE(write_negative_integer, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(-987));
+	writer.write(az::json::Value(-987));
 	BOOST_CHECK_EQUAL(stream.str(), "-987");
 }
 
-BOOST_AUTO_TEST_CASE(write_positive_real)
+BOOST_FIXTURE_TEST_CASE(write_positive_real, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(3.14));
+	writer.write(az::json::Value(3.14));
 	BOOST_CHECK_EQUAL(stream.str(), "3.14");
 }
 
-BOOST_AUTO_TEST_CASE(write_negative_real)
+BOOST_FIXTURE_TEST_CASE(write_negative_real, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(-2.78));
+	writer.write(az::json::Value(-2.78));
 	BOOST_CHECK_EQUAL(stream.str(), "-2.78");
 }
 
-BOOST_AUTO_TEST_CASE(write_positive_nan)
+BOOST_FIXTURE_TEST_CASE(write_positive_nan, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(std::stod("nan")));
+	writer.write(az::json::Value(std::nan("")));
 	BOOST_CHECK_EQUAL(stream.str(), "NaN");
 }
 
-BOOST_AUTO_TEST_CASE(write_negative_nan)
+BOOST_FIXTURE_TEST_CASE(write_negative_nan, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(std::stod("-nan")));
+	writer.write(az::json::Value(-std::nan("")));
 	BOOST_CHECK_EQUAL(stream.str(), "-NaN");
 }
 
-BOOST_AUTO_TEST_CASE(write_positive_infinity)
+BOOST_FIXTURE_TEST_CASE(write_positive_infinity, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(std::stod("infinity")));
+	writer.write(az::json::Value(INFINITY));
 	BOOST_CHECK_EQUAL(stream.str(), "Infinity");
 }
 
-BOOST_AUTO_TEST_CASE(write_negative_infinity)
+BOOST_FIXTURE_TEST_CASE(write_negative_infinity, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write(az::json::Value(std::stod("-infinity")));
+	writer.write(az::json::Value(-INFINITY));
 	BOOST_CHECK_EQUAL(stream.str(), "-Infinity");
 }
 
-BOOST_AUTO_TEST_CASE(write_scientific_real)
+BOOST_FIXTURE_TEST_CASE(write_scientific_real, WriterFixture)
 {
-	std::stringstream stream;
 	stream << std::scientific;
-	az::json::Writer(stream).write(az::json::Value(0.003));
+	writer.write(az::json::Value(0.003));
 	BOOST_CHECK_EQUAL(stream.str(), "3.000000e-03");
 }
 
-BOOST_AUTO_TEST_CASE(write_positive_hex)
+BOOST_FIXTURE_TEST_CASE(write_positive_hex, WriterFixture)
 {
-	std::stringstream stream;
 	stream << std::hex << std::showbase;
-	az::json::Writer(stream).write(az::json::Value(0xdead));
+	writer.write(az::json::Value(0xdead));
 	BOOST_CHECK_EQUAL(stream.str(), "0xdead");
 }
 
-BOOST_AUTO_TEST_CASE(write_negative_hex)
+BOOST_FIXTURE_TEST_CASE(write_negative_hex, WriterFixture)
 {
-	std::stringstream stream;
 	stream << std::hex << std::showbase;
-	az::json::Writer(stream).write(az::json::Value(-0xbeaf));
+	writer.write(az::json::Value(-0xbeaf));
 	BOOST_CHECK_EQUAL(stream.str(), "-0xbeaf");
 }
 
-BOOST_AUTO_TEST_CASE(write_uppercase_hex)
+BOOST_FIXTURE_TEST_CASE(write_uppercase_hex, WriterFixture)
 {
-	std::stringstream stream;
 	stream << std::hex << std::showbase << std::uppercase;
-	az::json::Writer(stream).write(az::json::Value(int64_t(0xABBA1972)));
+	writer.write(az::json::Value(int64_t(0xABBA1972)));
 	BOOST_CHECK_EQUAL(stream.str(), "0XABBA1972");
 }
 
-BOOST_AUTO_TEST_CASE(write_string)
+BOOST_FIXTURE_TEST_CASE(write_string, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write("ijhgjih");
+	writer.write("ijhgjih");
 	BOOST_CHECK_EQUAL(stream.str(), "\"ijhgjih\"");
 }
 
-BOOST_AUTO_TEST_CASE(write_string_with_special_chars)
+BOOST_FIXTURE_TEST_CASE(write_string_with_special_chars, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write("'\"\t\r\n");
+	writer.write("'\"\t\r\n");
 	BOOST_CHECK_EQUAL(stream.str(), "\"\\'\\\"\\t\\r\\n\"");
 }
 
-BOOST_AUTO_TEST_CASE(write_string_with_unicode)
+BOOST_FIXTURE_TEST_CASE(write_string_with_unicode, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write({std::string({char(0xE2), char(0x82), char(0xAC)}), 123});
+	writer.write({std::string({char(0xE2), char(0x82), char(0xAC)}), 123});
 	BOOST_CHECK_EQUAL(stream.str(), "[\"\\u20ac\",123]");
 }
 
-BOOST_AUTO_TEST_CASE(write_array)
+BOOST_FIXTURE_TEST_CASE(write_array, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write({1, 2.78, "three"});
+	writer.write({1, 2.78, "three"});
 	BOOST_CHECK_EQUAL(stream.str(), "[1,2.78,\"three\"]");
 }
 
-BOOST_AUTO_TEST_CASE(write_object)
+BOOST_FIXTURE_TEST_CASE(write_object, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).write({{"one", 1}});
+	writer.write({{"one", 1}});
 	BOOST_CHECK_EQUAL(stream.str(), "{\"one\":1}");
 }
 
-BOOST_AUTO_TEST_CASE(write_without_quoting)
+BOOST_FIXTURE_TEST_CASE(write_without_quoting, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).withoutQuoting().write({{"one", 1}});
+	writer.withoutQuoting().write({{"one", 1}});
 	BOOST_CHECK_EQUAL(stream.str(), "{one:1}");
 }
 
-BOOST_AUTO_TEST_CASE(pretty_write_array)
+BOOST_FIXTURE_TEST_CASE(pretty_write_array, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).pretty().write({1, "two"});
+	writer.pretty().write({1, "two"});
 	BOOST_CHECK_EQUAL(stream.str(), "[\n   1,\n   \"two\"\n]");
 }
 
-BOOST_AUTO_TEST_CASE(pretty_write_object)
+BOOST_FIXTURE_TEST_CASE(pretty_write_object, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).pretty().write({{"one", 1}});
+	writer.pretty().write({{"one", 1}});
 	BOOST_CHECK_EQUAL(stream.str(), "{\n   \"one\": 1\n}");
 }
 
-BOOST_AUTO_TEST_CASE(pretty_write_with_new_line)
+BOOST_FIXTURE_TEST_CASE(pretty_write_with_new_line, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).withNewLine("\r\n").pretty().write({123});
+	writer.withNewLine("\r\n").pretty().write({123});
 	BOOST_CHECK_EQUAL(stream.str(), "[\r\n   123\r\n]");
 }
 
-BOOST_AUTO_TEST_CASE(pretty_write_with_indent_size)
+BOOST_FIXTURE_TEST_CASE(pretty_write_with_indent_size, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).withIndentSize(5).pretty().write({3.14});
+	writer.withIndentSize(5).pretty().write({3.14});
 	BOOST_CHECK_EQUAL(stream.str(), "[\n     3.14\n]");
 }
 
-BOOST_AUTO_TEST_CASE(pretty_write_with_indent_char)
+BOOST_FIXTURE_TEST_CASE(pretty_write_with_indent_char, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).withIndentChar('\t').withIndentSize(1).pretty().write({nullptr});
+	writer.withIndentChar('\t').withIndentSize(1).pretty().write({nullptr});
 	BOOST_CHECK_EQUAL(stream.str(), "[\n\tnull\n]");
 }
 
-BOOST_AUTO_TEST_CASE(pretty_write_with_left_margin)
+BOOST_FIXTURE_TEST_CASE(pretty_write_with_left_margin, WriterFixture)
 {
-	std::stringstream stream;
-	az::json::Writer(stream).withLeftMargin(1).withIndentSize(2).pretty().write({true});
+	writer.withLeftMargin(1).withIndentSize(2).pretty().write({true});
 	BOOST_CHECK_EQUAL(stream.str(), " [\n   true\n ]");
 }
 

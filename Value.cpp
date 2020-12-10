@@ -10,49 +10,79 @@
 
 namespace az::json
 {
+
 const Value Value::null;
 
-Value::Value(Type type)
+void Value::reset(Type type /*= Type::Null*/)
 {
-	reset(type);
+	switch (this->type) {
+		case Type::String:
+			delete any.string_;
+			break;
+		case Type::Array:
+			delete any.array_;
+			break;
+		case Type::Object:
+			delete any.object_;
+			break;
+		default:
+			break;
+	}
+	any = {};
+	this->type = Type::Null;
+
+	switch (type) {
+		case Type::String:
+			any.string_ = new String();
+			break;
+		case Type::Array:
+			any.array_ = new Array();
+			break;
+		case Type::Object:
+			any.object_ = new Object();
+			break;
+		default:
+			break;
+	}
+	this->type = type;
 }
 
-Value::Value(bool val)
+void Value::assign(bool val)
 {
 	reset(Type::Bool);
 	any.bool_ = val;
 }
 
-Value::Value(int val)
+void Value::assign(int val)
 {
 	reset(Type::Integer);
 	any.integer_ = val;
 }
 
-Value::Value(int64_t val)
+void Value::assign(int64_t val)
 {
 	reset(Type::Integer);
 	any.integer_ = val;
 }
 
-Value::Value(uint64_t val)
-	: Value(int64_t(val))
+void Value::assign(uint64_t val)
 {
+	assign(int64_t(val));
 }
 
-Value::Value(float val)
-{
-	reset(Type::Real);
-	any.real_ = val;
-}
-
-Value::Value(double val)
+void Value::assign(float val)
 {
 	reset(Type::Real);
 	any.real_ = val;
 }
 
-Value::Value(const wchar_t* wide_string)
+void Value::assign(double val)
+{
+	reset(Type::Real);
+	any.real_ = val;
+}
+
+void Value::assign(const wchar_t* wide_string)
 {
 	reset(Type::String);
 	for (const wchar_t* wide_char = wide_string; *wide_char != 0; wide_char++) {
@@ -60,39 +90,63 @@ Value::Value(const wchar_t* wide_string)
 	}
 }
 
-Value::Value(const std::wstring& wide_string)
-	: Value(wide_string.c_str())
+void Value::assign(const std::wstring& wide_string)
 {
+	assign(wide_string.c_str());
 }
 
-Value::Value(const char* string)
-{
-	reset(Type::String);
-	any.string_->assign(string);
-}
-
-Value::Value(std::string&& string)
+void Value::assign(const char* string)
 {
 	reset(Type::String);
 	any.string_->assign(string);
 }
 
-Value::Value(const std::string& string)
+void Value::assign(std::string&& string)
 {
 	reset(Type::String);
 	any.string_->assign(string);
 }
 
-Value::Value(const Array& arr)
+void Value::assign(const std::string& string)
+{
+	reset(Type::String);
+	any.string_->assign(string);
+}
+
+void Value::assign(const Array& arr)
 {
 	reset(Type::Array);
 	any.array_->assign(arr.begin(), arr.end());
 }
 
-Value::Value(const Object& obj)
+void Value::assign(const Object& obj)
 {
 	reset(Type::Object);
 	*any.object_ = obj;
+}
+
+void Value::assign(const Value& other)
+{
+	reset(other.type);
+	switch (type) {
+		case Type::String:
+			*any.string_ = *other.any.string_;
+			break;
+		case Type::Array:
+			*any.array_ = *other.any.array_;
+			break;
+		case Type::Object:
+			*any.object_ = *other.any.object_;
+			break;
+		default:
+			any = other.any;
+	}
+}
+
+void Value::assign(Value&& other) noexcept
+{
+	reset();
+	swap(other);
 }
 
 Value::Value(std::initializer_list<Value> list)
@@ -114,84 +168,22 @@ Value::Value(std::initializer_list<Value> list)
 	}
 }
 
-Value::Value(const Value& other)
-{
-	*this = other;
-}
-
-Value::Value(Value&& other) noexcept
-{
-	*this = other;
-}
-
 Value& Value::operator=(const Value& other)
 {
-	reset(other.type);
-	switch (type) {
-		case Type::String:
-			*any.string_ = *other.any.string_;
-			break;
-		case Type::Array:
-			*any.array_ = *other.any.array_;
-			break;
-		case Type::Object:
-			*any.object_ = *other.any.object_;
-			break;
-		default:
-			any = other.any;
-	}
+	assign(other);
 	return *this;
 }
 
 Value& Value::operator=(Value&& other) noexcept
 {
-	reset();
-	swap(other);
+	assign(other);
 	return *this;
-}
-
-Value::~Value()
-{
-	reset();
 }
 
 void Value::swap(Value& other)
 {
 	std::swap(type, other.type);
 	std::swap(any, other.any);
-}
-
-void Value::reset(Type type /*= Type::Null*/)
-{
-	switch (this->type) {
-		case Type::String:
-			delete any.string_;
-			break;
-		case Type::Array:
-			delete any.array_;
-			break;
-		case Type::Object:
-			delete any.object_;
-			break;
-		default:
-			break;
-	}
-	any = {};
-
-	switch (type) {
-		case Type::String:
-			any.string_ = new String();
-			break;
-		case Type::Array:
-			any.array_ = new Array();
-			break;
-		case Type::Object:
-			any.object_ = new Object();
-			break;
-		default:
-			break;
-	}
-	this->type = type;
 }
 
 bool Value::empty() const
@@ -328,46 +320,6 @@ bool Value::asBool() const
 	}
 }
 
-Value::operator int() const
-{
-	return int(asInteger());
-}
-
-Value::operator int64_t() const
-{
-	return asInteger();
-}
-
-Value::operator uint64_t() const
-{
-	return asInteger();
-}
-
-Value::operator std::string() const
-{
-	return asString();
-}
-
-Value::operator std::wstring() const
-{
-	return asWideString();
-}
-
-Value::operator double() const
-{
-	return asReal();
-}
-
-Value::operator float() const
-{
-	return float(asReal());
-}
-
-Value::operator bool() const
-{
-	return asBool();
-}
-
 bool Value::operator==(const Value& other) const
 {
 	if (type != other.type) {
@@ -466,10 +418,18 @@ const Value& Value::operator[](const std::string& key) const
 	return null;
 }
 
-Value Value::get(const std::string& key, const Value& default_value) const
+Value Value::get(const std::string& key, const Value& default_value /*= Value::null*/) const
 {
 	if (has(key)) {
 		return (*this)[key];
+	}
+	return default_value;
+}
+
+Value Value::get(Index index, const Value& default_value /*= Value::null*/) const
+{
+	if (has(index)) {
+		return (*this)[index];
 	}
 	return default_value;
 }
@@ -521,10 +481,20 @@ Value& Value::append(const Value& other)
 	return any.array_->back();
 }
 
-std::string Value::stringify() const
+void Value::append(std::initializer_list<Value> values)
+{
+	if (!isArray()) {
+		reset(Type::Array);
+	}
+	for (auto& value : values) {
+		any.array_->push_back(std::move(value));
+	}
+}
+
+std::string Value::stringify(bool pretty) const
 {
 	std::stringstream stream;
-	Writer(stream).pretty().write(*this);
+	Writer(stream).pretty(pretty).write(*this);
 	return stream.str();
 }
 
@@ -621,7 +591,7 @@ const Value::Object& Value::getObject() const
 	throw Error("value is not an object");
 }
 
-Value::Iterator Value::begin() const
+Iterator Value::begin() const
 {
 	if (isArray()) {
 		return Iterator(any.array_->begin());
@@ -635,7 +605,7 @@ Value::Iterator Value::begin() const
 	throw std::runtime_error("bad type");
 }
 
-Value::Iterator Value::end() const
+Iterator Value::end() const
 {
 	if (isArray()) {
 		return Iterator(any.array_->end());

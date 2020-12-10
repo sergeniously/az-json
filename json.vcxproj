@@ -132,18 +132,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Error.h" />
-    <ClInclude Include="Path.h" />
-    <ClInclude Include="Reader.h" />
-    <ClInclude Include="Value.h" />
-    <ClInclude Include="Writer.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Error.cpp" />
     <ClCompile Include="Path.cpp" />
     <ClCompile Include="Reader.cpp" />
     <ClCompile Include="Value.cpp" />
     <ClCompile Include="Writer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Error.h" />
+    <ClInclude Include="Path.h" />
+    <ClInclude Include="Reader.h" />
+    <ClInclude Include="Value.h" />
+    <ClInclude Include="Writer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,8 +6,7 @@ SOURCES=\
 	ValueTests.cpp \
 	ReaderTests.cpp \
 	WriterTests.cpp \
-	PathTests.cpp \
-	tests.cpp
+	PathTests.cpp
 
 OBJECTS=\
 	$(patsubst %.cpp, $(DESTINATION)/%.o, $(SOURCES))
