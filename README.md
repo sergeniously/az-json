@@ -110,3 +110,54 @@ It is also possible to construct an empty object from empty initializer list sur
 az::json::Value json({}); // make an empty JSON object {}
 az::json::Value json = {}; // make a JSON null value
 ```
+
+## Serialization
+
+The simpliest way to serialize a JSON value is to call **az::json::Value::stringify(bool)** function which represents a value as a string in pretty (with indentations) or plain (without indentations) format that is controlled by a boolean argument.
+```c++
+az::json::Value json = {{"anything", 123}};
+std::cout << json.stringify(true); // prints json in pretty format (by default)
+std::cout << json.stringify(false); // prints json in plain format
+```
+But if you want to customize a result string of the JSON value in advanced ways, you can use **az::json::Writer** class which takes a reference to std::ostream as an output target and provides several options to control output format. All of them are passed into a constructor of the class.
+
+Take a look at the provided options:
+```c++
+struct Options {
+	bool pretty = false;
+	bool quoting = true;
+	char indent_char = ' ';
+	uint32_t indent_size = 3;
+	uint32_t left_margin = 0;
+	std::string new_line = "\n";
+};
+```
+Where:
+- **pretty** option tells Writer to use indentations and line breaking or not. If it's true the JSON value will be written in pretty format, otherwise - in plain format i.e. without any spaces between JSON elements.
+- **quoting** option tells Writer how to represent JSON keys in object values. If it's true the keys will always be surrounded with double quotes "". Otherwise if a key responds to a identifier restrictions it won't be surrounded with double quotes i.e. will be represented in JSON5 format.
+- **indent char** option sets a character that will be used to make indentations between JSON values. By default it is a space character.
+- **indent size** option sets a number of indentation characters per one level of hierarchy. By default it is a number 3.
+- **left margin** option sets a number of indentation characters which will be additionally placed before every line of serialized JSON value.
+- **new line** option sets a sequence of characters that will separate each line of pretty output format. By default it is a Linux line separator (\n). But it is possible to override it, for example, by a Windows line separator (\r\n).
+
+Let's see how it could be used in the real code:
+```c++
+az::json::Writer::Options options;
+options.pretty = true;
+options.quoting = false;
+options.indent_char = '\t';
+options.indent_size = 1;
+options.new_line = "\r\n";
+
+az::json::Writer(std::cout, options).write({{"json", 5}});
+```
+Actually, there is no need to pass Options structure to a constructor of the Writer class. If so it will use options by default. Also it is not necessary at all to use Options structure to change any option, because there are corresponding class methods to set every option individually in following ways:
+```c++
+std::stringstream stream;
+az::json::Writer(stream)
+	.withoutQuoting()
+	.withIndentChar('\t')
+	.withIndentSize(1)
+	.withNewLine("\r\n")
+	.pretty().write({{"json",5}});
+```
