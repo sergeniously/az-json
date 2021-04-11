@@ -113,7 +113,7 @@ az::json::Value json = {}; // make a JSON null value
 
 ## Serialization
 
-The simpliest way to serialize a JSON value is to call **az::json::Value::stringify(bool)** function which represents a value as a string in pretty (with indentations) or plain (without indentations) format that is controlled by a boolean argument.
+The simplest way to serialize a JSON value is to call **az::json::Value::stringify(bool)** function which represents a value as a string in pretty (with indentations) or plain (without indentations) format that is controlled by a boolean argument.
 ```c++
 az::json::Value json = {{"anything", 123}};
 std::cout << json.stringify(true); // prints json in pretty format (by default)
@@ -133,8 +133,8 @@ struct Options {
 };
 ```
 Where:
-- **pretty** option tells Writer to use indentations and line breaking or not. If it's true the JSON value will be written in pretty format, otherwise - in plain format i.e. without any spaces between JSON elements.
-- **quoting** option tells Writer how to represent JSON keys in object values. If it's true the keys will always be surrounded with double quotes "". Otherwise if a key responds to a identifier restrictions it won't be surrounded with double quotes i.e. will be represented in JSON5 format.
+- **pretty** option tells the Writer to use or not indentations and line breaking. If it is true the JSON value will be written in pretty format, otherwise - in plain format i.e. without any spaces between JSON elements.
+- **quoting** option tells the Writer how to represent JSON keys in object values. If it's true the keys will always be surrounded with double quotes "". Otherwise if a key responds to a identifier restrictions it won't be surrounded with double quotes i.e. will be represented in JSON5 format.
 - **indent char** option sets a character that will be used to make indentations between JSON values. By default it is a space character.
 - **indent size** option sets a number of indentation characters per one level of hierarchy. By default it is a number 3.
 - **left margin** option sets a number of indentation characters which will be additionally placed before every line of serialized JSON value.
@@ -160,4 +160,46 @@ az::json::Writer(stream)
 	.withIndentSize(1)
 	.withNewLine("\r\n")
 	.pretty().write({{"json",5}});
+```
+
+## Deserialization
+
+To transform text to a JSON value **az::json::Reader** class is used. It is able to read and parse text from many sources such as raw strings, FILE pointers, standard input streams. A constructor of the class takes a reference to a target root **az::json::Value** which is supposed to contain all the parsed JSON tree. Also it optionally takes a structure that provides some options to control a parsing process.
+```c++
+struct Options {
+	bool strictly = false;
+	bool no_throws = false;
+};
+```
+Where:
+- **strictly** option (if true) tells the Reader not to allow the source to contain garbage data at the end. It means there will be an error if after main JSON is successfully parsed there has been left extra text which is not just some spaces. By default it is false.
+- **no throws** option (if true) tells the Reader not to throw exceptions but collect them into internal error list which could be then retrieved by calling **getLastError** method. By default it is false.
+
+```c++
+az::json::Reader::Options options;
+options.strictly = true;
+options.no_throws = false;
+az::json::Value root;
+try {
+	az::json::Reader(root, options).parse("{json:5}...");
+catch (const az::json::Error& error) {
+	std::cout << error.what() << error.line() << error.column();
+}
+```
+Similar to the Writer the Reader class also has methods to set those options individually.
+```c++
+std::ifstream file();
+az::json::Value json;
+az::json::Reader(json)
+	.withNoThrows().strictly().parse(file);
+```
+If **no throws** option is turned on exceptions will not be thrown so to know if there was an error or not it might require to manually check for errors by using special methods like hasErrors and getLastError.
+```c++
+FILE* file = fopen();
+az::json::Value json;
+az::json::Reader(json) reader;
+if (reader.withNoThrows().parse(file).hasErrors()) {
+	auto error = reader.getLastError();
+}
+fclose(file);
 ```
