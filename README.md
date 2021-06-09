@@ -89,7 +89,7 @@ az::json::Value json = {
 	{"integer", 2020},
 	{"real", 3.14},
 	{"string", "amazing"},
-	{"array", {"pizza", 0xC0FFEE, Infinity}},
+	{"array", {"pizza", 0xC0FFEE, INFINITY}},
 	{"object", {
 		{"hour", 13},
 		{"minute", 55},
@@ -99,10 +99,17 @@ az::json::Value json = {
 ```
 ... or you still could do this in the classic way:
 ```c++
-az::json::Value json; // make a @json null value
-json["bool"] = true; // automatically transform the @json to object and add a boolean value with "bool" key
-json["array"].append({"pizza", 0xC0FFEE, INFINITY}); // create an array value in the @json object and add a few values to it
-json["object"]["day of week"] = "Sunday"; // add an object inside the @json root object 
+// make @json null value
+az::json::Value json;
+
+// automatically transform @json to object and add a boolean value with "bool" key
+json["bool"] = true;
+
+// create an array value in @json object and add a few values to it
+json["array"].append({"pizza", 0xC0FFEE, INFINITY});
+
+// add an object inside @json root object 
+json["object"]["day of week"] = "Sunday";
 ```
 It is also possible to construct an empty object from empty initializer list surrounded with parentheses.
 >**Note**: due to c++ specification it is unfortunately impossible to do so without parentheses (see the differences below).
