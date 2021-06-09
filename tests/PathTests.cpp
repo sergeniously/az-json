@@ -1,4 +1,4 @@
-#include "../Path.h"
+#include "Path.h"
 #include "tests.hpp"
 
 BOOST_AUTO_TEST_SUITE(PathTests)

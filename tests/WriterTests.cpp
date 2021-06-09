@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "../Writer.h"
+#include "Writer.h"
 #include "tests.hpp"
 #include <cmath>
 
