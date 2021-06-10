@@ -1,5 +1,19 @@
 <h1 align="center">JSON5 & JSON C++ Manipulator</h1>
 
+- [Introducing](#introducing)
+- [Constructing](#constructing)
+  - [Null value](#null-value)
+  - [Boolean value](#boolean-value)
+  - [Integer value](#integer-value)
+  - [Real value](#real-value)
+  - [String value](#string-value)
+  - [Array value](#array-value)
+  - [Object value](#object-value)
+- [Serialization](#serialization)
+- [Deserialization](#deserialization)
+- [Building](#building)
+- [Testing](#testing)
+
 ## Introducing
 
 **az-json** is another user friendly and easy to use [JSON5](https://json5.org/) serialization & deserialization library for C++. 
@@ -200,7 +214,7 @@ az::json::Value json;
 az::json::Reader(json)
 	.withNoThrows().strictly().parse(file);
 ```
-If **no throws** option is turned on exceptions will not be thrown so to know if there was an error or not it might require to manually check for errors by using special methods like hasErrors and getLastError.
+If **no throws** option is turned on exceptions will not be thrown. So to know if there was an error or not it might require to manually check for errors by using special methods like hasErrors and getLastError.
 ```c++
 FILE* file = fopen();
 az::json::Value json;
@@ -209,4 +223,32 @@ if (reader.withNoThrows().parse(file).hasErrors()) {
 	auto error = reader.getLastError();
 }
 fclose(file);
+```
+
+## Building
+
+Building on Linux systems firstly requires the packages of **gcc**, **make** and **cmake** to be installed. Additionally, if **libboost-test-dev** and **valgrind** packages are installed there will be available testing features. After previous prerequisites are satisfied all that is necessary is to create some build directory, enter to it and run **cmake** with a path where the repository of this library is located. Finally, running **make** command will bring the profit!
+
+For example, assuming that a build directory is created in a root of the repository, the sequence of building steps might look as following:
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+Also it is possible to install the library and its include files to the system by running **make install** command.
+
+## Testing
+
+There are a lot of unit-tests which are implemented to check the library. They are written under Boost unit test framework, so it is required for **libboost-test-dev** package to be installed. Once the library is built according to previous [building guide](#building), it may be tested by running **make test** command. It also will be checked on memory leaks if **valgrind** package is installed on the system.
+```
+make test
+Running tests...
+Test project /home/user/az-json/build
+    Start 1: unit-tests
+1/2 Test #1: unit-tests .......................   Passed    0.01 sec
+    Start 2: leak-tests
+2/2 Test #2: leak-tests .......................   Passed    2.33 sec
+
+100% tests passed, 0 tests failed out of 2
 ```
