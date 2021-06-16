@@ -1,8 +1,11 @@
 
+set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS unit_test_framework)
 
 if(Boost_FOUND)
     find_program(VALGRIND valgrind)
+
+    include_directories(${Boost_INCLUDE_DIR})
 
     add_executable(${PROJECT_NAME}-test
         ValueTests.cpp
@@ -19,6 +22,8 @@ if(Boost_FOUND)
     add_test(NAME unit-tests COMMAND ${PROJECT_NAME}-test)
     if(VALGRIND)
         add_test(NAME leak-tests COMMAND valgrind --leak-check=summary --error-exitcode=1 ./${PROJECT_NAME}-test)
+    elseif(WIN32)
+        add_test(NAME leak-tests COMMAND ${PROJECT_NAME}-test --detect_memory_leaks)
     endif()
 else()
     message(STATUS

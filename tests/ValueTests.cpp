@@ -1,4 +1,4 @@
-#include "tests.hpp"
+#include <boost/test/unit_test.hpp>
 #include "Value.h"
 
 BOOST_AUTO_TEST_SUITE(ValueTests)
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(make_array_from_initlist)
 
 BOOST_AUTO_TEST_CASE(make_array_from_one_element_initlist)
 {
-	az::json::Value json({"json"});
+	az::json::Value json({std::string("json")});
 	BOOST_REQUIRE_EQUAL(json.getType(), az::json::Value::Type::Array);
 	BOOST_REQUIRE_EQUAL(json.size(), 1);
 	BOOST_CHECK_EQUAL(json[0].asString(), "json");

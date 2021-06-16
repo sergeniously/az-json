@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(az-json
-    DESCRIPTION "JSON5 & JSON manipulating library"
+    DESCRIPTION "Another JSON5 & JSON manipulator library"
     VERSION 1.0
     LANGUAGES CXX
 )
