@@ -14,5 +14,5 @@ PROJECT_EMAIL=sergeniously@mail.ru
 $(call import_modules,Cpp)
 
 # Default compiler options
-$(call set_cxx_standard,c++20)
+$(call set_cxx_standard,c++2a)
 $(call add_compile_options,-Wall)

@@ -1,5 +1,6 @@
 include ../makeup.mk
 
+$(call add_compile_options,-fPIC)
 $(call include_directories,../headers)
 
 $(call add_library,az-json,STATIC SHARED,\
