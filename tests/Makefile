@@ -1,7 +1,7 @@
 include ../makeup.mk
 $(call import_modules,Boost)
 
-$(call find_boost,LIBS:unit_test_framework)
+$(call find_boost,PATH:$(HOME)/boost LIBS:unit_test_framework)
 
 ifeq ($(BOOST_FOUND),yes)
 
