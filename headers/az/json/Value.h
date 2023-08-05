@@ -6,8 +6,8 @@
 #include <ostream>
 #include <iterator>
 
-namespace az::json
-{
+namespace az { 
+namespace json {
 
 class Iterator;
 
@@ -224,7 +224,8 @@ public:
 	}
 };
 
-}
+} /* namespace json */
+} /* namespace az */
 
 namespace std
 {

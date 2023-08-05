@@ -1,11 +1,11 @@
-#include "Reader.h"
+#include <az/json/Reader.h>
 #include <algorithm>
 #include <istream>
 #include <vector>
 #include <cstring>
 
-namespace az::json
-{
+namespace az {
+namespace json {
 
 void Source::skipLexeme()
 {
@@ -453,7 +453,7 @@ Reader& Reader::parse(const char* text)
 
 Reader& Reader::parse(const std::string& text)
 {
-	IterableSource source(text.begin(), text.end());
+	IterableSource<std::string::const_iterator> source(text.begin(), text.end());
 	return parse(source);
 }
 
@@ -601,4 +601,5 @@ Value parse(const char* text, std::size_t size)
 	return json;
 }
 
-}
+} /* namespace json */
+} /* namespace az */

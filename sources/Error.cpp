@@ -1,7 +1,7 @@
-#include "Error.h"
+#include <az/json/Error.h>
 
-namespace az::json
-{
+namespace az {
+namespace json {
 
 Error::Error(const std::string& reason, int line /*= -1*/, int column /*= -1*/)
 {
@@ -25,4 +25,5 @@ int Error::column() const
 	return context.column;
 }
 
-}
+} /* namespace json */
+} /* namespace az */

@@ -3,8 +3,8 @@
 #include "Error.h"
 #include "Value.h"
 
-namespace az::json
-{
+namespace az {
+namespace json {
 
 class Source
 {
@@ -70,7 +70,7 @@ public:
 
 	template<class Iterator>
 	Reader& parse(Iterator first, Iterator last) {
-		IterableSource source(first, last);
+		IterableSource<Iterator> source(first, last);
 		return parse(source);
 	}
 
@@ -113,7 +113,8 @@ Value parse(const char* text, std::size_t size);
 Value parse(const std::string&);
 Value parse(std::istream&);
 
-}
+} /* namespace json */
+} /* namespace az */
 
 inline az::json::Value operator""_json(const char* text, std::size_t size)
 {

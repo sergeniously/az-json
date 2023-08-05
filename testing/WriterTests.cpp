@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <boost/test/unit_test.hpp>
-#include "Writer.h"
+#include <az/json/Writer.h>
 #include <cmath>
 
 struct WriterFixture {

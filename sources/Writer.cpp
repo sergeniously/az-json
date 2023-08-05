@@ -1,4 +1,4 @@
-#include "Writer.h"
+#include <az/json/Writer.h>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
@@ -6,7 +6,8 @@
 #include <limits>
 #include <cstring>
 
-namespace az::json {
+namespace az {
+namespace json {
 
 Writer& Writer::withIndentChar(char v)
 {
@@ -107,11 +108,11 @@ void Writer::writeValue(const Value& value, int level)
 			stream << '{';
 			if (!value.empty()) {
 				auto count = value.size();
-				for (const auto& [identifier, object_value] : value.getObject()) {
+				for (const auto& kv : value.getObject()) {
 					writeNewLine();
 					writeIndentation(level + 1);
-					writeIdentifier(identifier);
-					writeValue(object_value, level + 1);
+					writeIdentifier(kv.first);
+					writeValue(kv.second, level + 1);
 					if (--count > 0) {
 						stream << ',';
 					}
@@ -196,7 +197,7 @@ void Writer::escape(const char* begin, const char* end)
 			case '"':
 			case '\'':
 			case '\\':
-			case '/':
+			//case '/':
 				stream << '\\' << letter;
 				break;
 			case '\b':
@@ -244,10 +245,12 @@ void Writer::escape(const char* string)
 bool Writer::isIdentifier(const std::string& id)
 {
 	if (!id.empty() && (isalpha(id.front()) || id.front() == '_')) {
-		return std::all_of(std::next(id.begin()), id.end(),
-			[](auto letter) { return isalnum(letter) || letter == '_'; });
+		return std::all_of(std::next(id.begin()), id.end(), [](std::string::value_type letter) { 
+			return isalnum(letter) || letter == '_'; 
+		});
 	}
 	return false;
 }
 
-}
+} /* namespace json */
+} /* namespace az */

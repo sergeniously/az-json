@@ -6,7 +6,7 @@ project(az-json
     LANGUAGES CXX
 )
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(GNUInstallDirs)
@@ -17,4 +17,4 @@ include_directories(headers)
 
 add_subdirectory(headers)
 add_subdirectory(sources)
-add_subdirectory(tests)
+add_subdirectory(testing)

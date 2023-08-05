@@ -3,7 +3,7 @@ $(call import_modules,Boost)
 
 $(call find_boost,PATH:$(HOME)/boost LIBS:unit_test_framework)
 
-ifeq ($(BOOST_FOUND),no)
+ifeq ($(BOOST_LIBRARIES),)
 $(info boost unit test framework is not found)
 else
 

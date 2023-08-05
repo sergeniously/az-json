@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "Value.h"
+#include <az/json/Value.h>
 
 BOOST_AUTO_TEST_SUITE(ValueTests)
 

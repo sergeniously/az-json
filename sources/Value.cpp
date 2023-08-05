@@ -1,15 +1,15 @@
-#include "Value.h"
+#include <az/json/Value.h>
 #include <sstream>
 #include <iomanip>
 #include <cmath>
 #include <cstring>
 #include <limits>
 #include <algorithm>
-#include "Writer.h"
-#include "Reader.h"
+#include <az/json/Writer.h>
+#include <az/json/Reader.h>
 
-namespace az::json
-{
+namespace az {
+namespace json {
 
 const Value Value::null;
 
@@ -567,7 +567,7 @@ uint32_t Value::size() const
 
 bool Value::has(const std::string& name) const
 {
-	return isObject() ? any.object_->contains(name) : false;
+	return isObject() ? any.object_->count(name) > 0 : false;
 }
 
 bool Value::has(Index index) const
@@ -671,7 +671,8 @@ Value Value::convert(Type type) const
 	return Value(*this).convert(type);
 }
 
-}
+} /* namespace json */
+} /* namespace az */
 
 namespace std
 {

@@ -2,7 +2,8 @@
 #include <iostream>
 #include "Value.h"
 
-namespace az::json {
+namespace az {
+namespace json {
 
 class Writer
 {
@@ -44,4 +45,5 @@ private:
 	Options options;
 };
 
-}
+} /* namespace json */
+} /* namespace az */

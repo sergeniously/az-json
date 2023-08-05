@@ -11,4 +11,4 @@ $(call add_library,az-json,STATIC SHARED,\
 	Writer.cpp \
 )
 
-$(call install_targets,az-json,$(ROOT_INSTALL_DIR))
+$(call install_targets,az-json,$(ROOT_INSTALL_DIR)/usr/local/lib)

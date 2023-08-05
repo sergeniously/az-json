@@ -2,8 +2,8 @@
 #include <string>
 #include <exception>
 
-namespace az::json
-{
+namespace az {
+namespace json {
 
 class Error : public std::exception
 {
@@ -23,4 +23,5 @@ private:
 	Context context;
 };
 
-}
+} /* namespace json */
+} /* namespace az */

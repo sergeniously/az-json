@@ -18,11 +18,11 @@
 
 **az-json** is another user friendly and easy to use [JSON5](https://json5.org/) serialization & deserialization library for C++. 
 It is also 100% compatible with the classic [JSON](https://www.json.org/)!
-It is written using the features from the latest C++20 standard. So you probably won't be able to use this library in your old-fashioned project and could say that it is an disadvantage. But let's look to the future!
+It is written using C++11 standard, so you are definitly able to use this library even in your old-fashioned projects.
 
 ## Constructing
 
-The storage for JSON values is presented by az::json::Value class, which can contain one of az::json::Value::Type {Null, Bool, Integer, Real, Array, Object} values. 
+The storage for JSON values is presented by az::json::Value class, which can contain one of az::json::Value::Type {Null, Bool, Integer, Real, Array, Object} values.
 So you can explicitly specify a value type during the constructing:
 ```c++
 az::json::Value json(az::json::Value::Type::Null); // makes null

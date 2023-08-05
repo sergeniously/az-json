@@ -1,5 +1,5 @@
 
-file(GLOB HEADERS "*.h")
+file(GLOB HEADERS "az/json/*.h")
 
 install(
     FILES ${HEADERS}

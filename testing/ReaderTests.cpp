@@ -2,7 +2,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "Reader.h"
+#include <az/json/Reader.h>
 #include <cmath>
 
 struct ReaderFixture {
