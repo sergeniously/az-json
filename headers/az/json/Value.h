@@ -212,9 +212,15 @@ public:
 		return iter;
 	}
 	bool operator==(const Iterator& other) const {
-		return type == other.type &&
-			arr_iter == other.arr_iter &&
-			obj_iter == other.obj_iter;
+		if (type != other.type) {
+			return false;
+		}
+		if (isArray()) {
+			return arr_iter == other.arr_iter;
+		} else if (isObject()) {
+			return obj_iter == other.obj_iter;
+		}
+		return true;
 	}
 	bool operator!=(const Iterator& other) const {
 		return !(*this == other);

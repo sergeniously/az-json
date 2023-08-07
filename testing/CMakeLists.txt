@@ -6,23 +6,24 @@ if(Boost_FOUND)
 
     include_directories(${Boost_INCLUDE_DIR})
 
-    add_executable(${PROJECT_NAME}-test
+    add_executable(testing
         ValueTests.cpp
         ReaderTests.cpp
         WriterTests.cpp
         PathTests.cpp
     )
-    add_dependencies(${PROJECT_NAME}-test ${PROJECT_NAME})
-
-    target_link_libraries(${PROJECT_NAME}-test
-        ${PROJECT_NAME} ${Boost_LIBRARIES}
+    
+    target_link_libraries(testing
+        library ${Boost_LIBRARIES}
     )
 
-    add_test(NAME unit-tests COMMAND ${PROJECT_NAME}-test)
+    set_target_properties(testing PROPERTIES OUTPUT_NAME unit)
+
+    add_test(NAME unit-tests COMMAND unit)
     if(VALGRIND)
-        add_test(NAME leak-tests COMMAND valgrind --leak-check=summary --error-exitcode=1 ./${PROJECT_NAME}-test)
+        add_test(NAME leak-tests COMMAND valgrind --leak-check=summary --error-exitcode=1 ./unit)
     elseif(WIN32)
-        add_test(NAME leak-tests COMMAND ${PROJECT_NAME}-test --detect_memory_leaks)
+        add_test(NAME leak-tests COMMAND unit --detect_memory_leaks)
     endif()
 else()
     message(STATUS
