@@ -60,6 +60,24 @@ public:
 	}
 };
 
+class CStringSource : public Source
+{
+	const char* source = nullptr;
+	void skipCharacter() override {
+		source++;
+	}
+public:
+	CStringSource(const char* source)
+		: source(source)
+	{}
+	std::char_traits<char>::int_type getCharacter() const override {
+		if (source && *source != 0) {
+			return std::char_traits<char>::to_int_type(*source);
+		}
+		return std::char_traits<char>::eof();
+	}
+};
+
 Reader& Reader::withNoThrows(bool v /*= true*/)
 {
 	options.no_throws = v;
@@ -443,12 +461,8 @@ Reader& Reader::parse(Source& source)
 
 Reader& Reader::parse(const char* text)
 {
-	if (text) {
-		parse(text, text + strlen(text));
-	} else {
-		putError("invalid source");
-	}
-	return *this;
+	CStringSource source(text);
+	return parse(source);
 }
 
 Reader& Reader::parse(const std::string& text)
